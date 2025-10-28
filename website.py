@@ -118,9 +118,9 @@ def get_info():
             results.append(dict(zip(key_list, item)))
         msg = {"code": 0, "msg": "success", "rows": results, "total": total}
     except sqlite3.OperationalError as e:
-        msg = {"code": 1, "msg": e, "data": query}
+        msg = {"code": 1, "msg": str(e), "data": query}
     except sqlite3.IntegrityError as e:
-        msg = {"code": 1, "msg": e, "data": query}
+        msg = {"code": 1, "msg": str(e), "data": query}
     finally:
         conn.close()
     return json.dumps(msg)
@@ -138,9 +138,9 @@ def get_abs(q):
             results.append(item)
         msg = {"code": 0, "msg": "success", "data": results}
     except sqlite3.OperationalError as e:
-        msg = {"code": 1, "msg": e, "data": query}
+        msg = {"code": 1, "msg": str(e), "data": query}
     except sqlite3.IntegrityError as e:
-        msg = {"code": 1, "msg": e, "data": query}
+        msg = {"code": 1, "msg": str(e), "data": query}
     finally:
         conn.close()
 
