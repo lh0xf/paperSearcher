@@ -52,7 +52,7 @@ def keywords(q, source, year, page):
         i += 1
     if len(keywords) - len(operator) != 1:
         print("Error")
-    # base_query = "SELECT * FROM PAPER WHERE ("
+    # base_query = "SELECT * FROM papers WHERE ("
     base_query = "("
     clause = ""
     base_title = "TITLE LIKE'%{0}%'"
@@ -63,7 +63,7 @@ def keywords(q, source, year, page):
             clause += " {0} ".format(operator[i], )
         except IndexError as e:
             print(e)
-            return "SELECT * FROM PAPER WHERE YEAR=1900"
+            return "SELECT * FROM papers WHERE YEAR=1900"
     clause += base_title.format(keywords[-1], )
 
     clause += " OR "
@@ -78,7 +78,7 @@ def keywords(q, source, year, page):
     if year is not None:
         clause += (" AND YEAR IN (" + year + ") ")
 
-    print(clause)
+    # print(clause)
     return base_query + clause
 
 
@@ -94,14 +94,15 @@ def get_info():
     year = request.args.get("y")
     offset = int(request.args.get("offset"))
     limit = int(request.args.get("limit"))
-    conn = sqlite3.connect(sys.path[0] + "/paper.db")
+    conn = sqlite3.connect(sys.path[0] + "/papers.db")
     c = conn.cursor()
     query = keywords(q, source, year, offset)
+    print("query:" + query)
     results = []
 
     # get total count
     try:
-        base_q = "SELECT COUNT(*) FROM PAPER WHERE"
+        base_q = "SELECT COUNT(*) FROM papers WHERE"
         cursor = c.execute(base_q + query)
         total = cursor.fetchone()[0]
     except sqlite3.Error as e:
@@ -109,9 +110,10 @@ def get_info():
 
     # get real data
     try:
-        query = "SELECT * FROM PAPER WHERE" + query
+        query = "SELECT * FROM papers WHERE" + query
         query += " ORDER BY YEAR DESC "
         query += "LIMIT {1} OFFSET {0}".format(offset, limit)
+        print(query)
         cursor = c.execute(query)
         key_list = ["id", "conf", "year", "cat", "title", "href", "abstract", "bib"]
         for item in cursor:
@@ -128,9 +130,9 @@ def get_info():
 
 @app.route('/abstract/<q>')
 def get_abs(q):
-    conn = sqlite3.connect(sys.path[0] + "/paper.db")
+    conn = sqlite3.connect(sys.path[0] + "/papers.db")
     c = conn.cursor()
-    query = "SELECT title,abstract FROM PAPER WHERE id=" + str(int(q))
+    query = "SELECT title,abstract FROM papers WHERE id=" + str(int(q))
     results = []
     try:
         cursor = c.execute(query)
